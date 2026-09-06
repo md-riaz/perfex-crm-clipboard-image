@@ -4,6 +4,7 @@
  * Module Name: Clipboard Image Upload
  * Description: Paste images directly into task editors.
  * Version: 1.2.2
+ * Author: md-riaz
  * Requires at least: 2.3.0
  */
 
