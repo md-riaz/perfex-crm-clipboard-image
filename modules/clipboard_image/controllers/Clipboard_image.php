@@ -13,16 +13,12 @@ class Clipboard_image extends AdminController
 
     public function upload()
     {
-        if (!$this->input->is_ajax_request() || !staff_can('view', 'tasks')) {
+        if (!$this->input->is_ajax_request()) {
             ajax_access_denied();
         }
 
         $taskId = (int) $this->input->post('taskid');
-        if (!$taskId || !staff_can('edit', 'tasks')) {
-            ajax_access_denied();
-        }
-
-        $task = $this->tasks_model->get($taskId);
+        $task = $taskId ? $this->tasks_model->get($taskId) : null;
         if (!$task || !isset($_FILES['file'])) {
             $this->respond_error(_l('file_not_uploaded'));
             return;
