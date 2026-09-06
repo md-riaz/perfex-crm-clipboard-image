@@ -1,0 +1,14 @@
+/*
+!modules/
+!modules/clipboard_image/
+!README.md
+!.gitignore
+
+application/config/app-config.php
+application/config/my_*.php
+uploads/
+backups/
+media/
+temp/
+node_modules/
+*.stackdump
