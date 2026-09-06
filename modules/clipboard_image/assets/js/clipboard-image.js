@@ -2,6 +2,20 @@
 (function () {
   'use strict';
 
+  var debug = /(?:^|[?&])clipboard_image_debug=1(?:&|$)/.test(location.search) || localStorage.getItem('clipboard_image_debug') === '1';
+  function trace(event, data) {
+    if (!debug) return;
+    console.debug('[clipboard-image] ' + event, data || '');
+  }
+
+  if (debug && window.jQuery) {
+    $(document).on('ajaxComplete.clipboardImage', function (_, xhr, settings) {
+      if (/tasks\/(update_task_description|add_task_comment)|clipboard_image\/upload/.test(settings.url)) {
+        trace('ajax-complete', {url: settings.url, status: xhr.status, response: xhr.responseText});
+      }
+    });
+  }
+
   function taskId(editor) {
     var el = editor && editor.getElement && editor.getElement();
     var modal = el ? $(el).closest('#task-modal, #_task_modal') : $();
@@ -39,7 +53,11 @@
   function bind(editor) {
     if (!editor || editor.__clipboardImageBound) return;
     var id = taskId(editor);
-    if (!id) return;
+    trace('bind', {editor: editor.id, taskId: id});
+    if (!id) {
+      trace('skip-no-task-id', {editor: editor.id});
+      return;
+    }
     editor.__clipboardImageBound = true;
 
     function paste(event) {
@@ -47,11 +65,14 @@
       if (!items) return;
       for (var i = 0; i < items.length; i++) {
         if (items[i].kind !== 'file' || items[i].type.indexOf('image/') !== 0) continue;
+        var file = items[i].getAsFile();
+        trace('paste-image', {editor: editor.id, taskId: id, type: items[i].type, name: file && file.name});
         event.preventDefault();
         event.stopPropagation();
-        var file = items[i].getAsFile();
         if (!file) return;
+        trace('upload-start', {editor: editor.id, taskId: id});
         upload(id, file).done(function (url) {
+          trace('upload-success', {editor: editor.id, taskId: id, url: url});
           editor.insertContent('<img src="' + url + '" alt="Pasted image">');
           editor.setDirty(true);
           if (editor.id === 'task_view_description' && editor.fire) editor.fire('blur');
@@ -60,8 +81,9 @@
           if (tinymce.triggerSave) tinymce.triggerSave();
           if (source) source.value = editor.getContent();
           editor.nodeChanged();
-        }).fail(function (message) {
-          if (window.alert_float) alert_float('danger', message);
+        }).fail(function (xhr) {
+          trace('upload-failed', {editor: editor.id, taskId: id, status: xhr && xhr.status, response: xhr && xhr.responseText});
+          if (window.alert_float) alert_float('danger', 'Image upload failed.');
         });
         return;
       }
