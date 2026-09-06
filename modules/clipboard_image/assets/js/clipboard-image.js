@@ -94,22 +94,38 @@
     if (doc) doc.addEventListener('paste', paste, true);
   }
 
+  function isTaskEditor(selector) {
+    return selector === '#task_comment' || selector === '#task_view_description' ||
+      (typeof selector === 'string' && selector.indexOf('#task_comment') !== -1);
+  }
+
+  function patchInit() {
+    if (typeof tinymce === 'undefined' || !tinymce.init || tinymce.init.__clipboardImage) return;
+    var init = tinymce.init;
+    tinymce.init = function (options) {
+      if (options && isTaskEditor(options.selector)) {
+        var setup = options.setup;
+        options.setup = function (editor) {
+          if (setup) setup(editor);
+          bind(editor);
+        };
+      }
+      return init.call(this, options);
+    };
+    tinymce.init.__clipboardImage = true;
+  }
+
   function bindTaskEditors() {
     if (typeof tinymce === 'undefined') return;
-    var editors = Array.isArray(tinymce.editors) ? tinymce.editors : Object.keys(tinymce.editors || {}).map(function (key) {
-      return tinymce.editors[key];
-    });
     ['task_comment', 'task_view_description'].forEach(function (id) {
       var editor = tinymce.get && tinymce.get(id);
-      if (editor && editors.indexOf(editor) < 0) editors.push(editor);
-    });
-    editors.forEach(function (editor) {
-      if (/^(task_comment(?:_|$)|task_view_description$)/.test(editor.id || '')) bind(editor);
+      if (editor) bind(editor);
     });
   }
 
   var attempts = 0;
   var timer = setInterval(function () {
+    patchInit();
     bindTaskEditors();
     if (++attempts > 200) clearInterval(timer);
   }, 100);
