@@ -3,7 +3,7 @@
 /**
  * Module Name: Clipboard Image Upload
  * Description: Paste images directly into task editors.
- * Version: 1.2.4
+ * Version: 1.0.1
  * Author: md-riaz
  * Requires at least: 2.3.0
  */
@@ -42,8 +42,7 @@ function clipboard_image_add_assets()
         return;
     }
     $loaded = true;
-    $script = CLIPBOARD_IMAGE_MODULE_PATH . 'assets/js/clipboard-image.js';
-    echo '<script src="' . e(CLIPBOARD_IMAGE_MODULE_URL . 'assets/js/clipboard-image.js') . '?v=' . filemtime($script) . '"></script>';
+    echo '<script src="' . e(CLIPBOARD_IMAGE_MODULE_URL . 'assets/js/clipboard-image.js') . '?v=1.0.1"></script>';
 }
 
 
