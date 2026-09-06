@@ -72,12 +72,8 @@ class Clipboard_image extends AdminController
         $this->db->where('id', (int) $attachmentId);
         $this->db->update(db_prefix() . 'files', ['rel_type' => 'clipboard_image']);
 
-        // Keep this relative to /admin/tasks. Perfex's purifier accepts the
-        // relative source, while the AJAX task HTML resolves it to the admin
-        // controller without being rewritten or removed.
-        // Include the real image extension so TinyMCE/HTMLPurifier treats the
-        // value exactly like a manually entered image URL.
-        $location = '../clipboard_image/image/' . $attachment->attachment_key;
+        // Root-relative keeps the module route stable from nested admin pages.
+        $location = '/admin/clipboard_image/image/' . $attachment->attachment_key;
 
         $this->output
             ->set_content_type('application/json')
