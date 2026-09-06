@@ -42,7 +42,8 @@ function clipboard_image_add_assets()
         return;
     }
     $loaded = true;
-    echo '<script src="' . e(CLIPBOARD_IMAGE_MODULE_URL . 'assets/js/clipboard-image.js') . '?v=1.2.4"></script>';
+    $script = CLIPBOARD_IMAGE_MODULE_PATH . 'assets/js/clipboard-image.js';
+    echo '<script src="' . e(CLIPBOARD_IMAGE_MODULE_URL . 'assets/js/clipboard-image.js') . '?v=' . filemtime($script) . '"></script>';
 }
 
 
